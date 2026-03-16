@@ -1,0 +1,24 @@
+{
+  "classification": {
+    "logistic_regression": {
+      "mAP": 0.5564007289209199
+    },
+    "mlp_classifier": {
+      "mAP": 0.5660292213576269
+    }
+  },
+  "saliency": {
+    "mean_saliency": {
+      "CC": 0.5947745957536025,
+      "SIM": 0.5878482728064552
+    },
+    "ridge_regression": {
+      "CC": 0.5974342933908294,
+      "SIM": 0.5929110580845655
+    },
+    "mlp_regressor": {
+      "CC": 0.5853933668378144,
+      "SIM": 0.5771347303606348
+    }
+  }
+}

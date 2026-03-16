@@ -1,0 +1,68 @@
+{
+  "gradient_saliency": {
+    "deletion_auc_mean": 0.46822480209730566,
+    "deletion_auc_std": 0.2611488973731031,
+    "insertion_auc_mean": 0.7657827479415574,
+    "insertion_auc_std": 0.2251493741627815,
+    "alignment_CC_mean": 0.16106128581687265,
+    "alignment_CC_std": 0.2381818068206646,
+    "alignment_SIM_mean": 0.41038442670535213,
+    "alignment_SIM_std": 0.09887406084220489,
+    "stability_gaussian_noise_0.02_mean": 0.9633043715336743,
+    "stability_gaussian_noise_0.02_std": 0.03539774092187706,
+    "stability_gaussian_noise_0.05_mean": 0.9183757231465615,
+    "stability_gaussian_noise_0.05_std": 0.05816277793765477,
+    "stability_horizontal_flip_mean": 0.76834490311136,
+    "stability_horizontal_flip_std": 0.08296368776034278,
+    "stability_brightness_+0.05_mean": 0.9879396514980524,
+    "stability_brightness_+0.05_std": 0.031222698664923942
+  },
+  "grad_x_input": {
+    "deletion_auc_mean": 0.5212694395408035,
+    "deletion_auc_std": 0.28253426005826165,
+    "insertion_auc_mean": 0.7675100966119206,
+    "insertion_auc_std": 0.22357966720894848,
+    "alignment_CC_mean": 0.17143403704960242,
+    "alignment_CC_std": 0.24116660482364224,
+    "alignment_SIM_mean": 0.4052525032765854,
+    "alignment_SIM_std": 0.10538862749742749
+  },
+  "integrated_gradients": {
+    "deletion_auc_mean": 0.47855495212390087,
+    "deletion_auc_std": 0.26130810057922144,
+    "insertion_auc_mean": 0.7783332842090165,
+    "insertion_auc_std": 0.22148602525323474,
+    "alignment_CC_mean": 0.24800487316172037,
+    "alignment_CC_std": 0.25084671922663415,
+    "alignment_SIM_mean": 0.4342169032681587,
+    "alignment_SIM_std": 0.100416006288477,
+    "stability_gaussian_noise_0.02_mean": 0.9899420121568241,
+    "stability_gaussian_noise_0.02_std": 0.022514466647908318,
+    "stability_gaussian_noise_0.05_mean": 0.9689904522082233,
+    "stability_gaussian_noise_0.05_std": 0.04766751728622893,
+    "stability_horizontal_flip_mean": 0.8204756461285403,
+    "stability_horizontal_flip_std": 0.06585461245844458,
+    "stability_brightness_+0.05_mean": 0.9991087957186245,
+    "stability_brightness_+0.05_std": 0.0005006033093681604
+  },
+  "attention_rollout": {
+    "deletion_auc_mean": 0.5443717843121849,
+    "deletion_auc_std": 0.24998556390628937,
+    "insertion_auc_mean": 0.7445759646538644,
+    "insertion_auc_std": 0.2354789893104226,
+    "alignment_CC_mean": -0.0030051041907439707,
+    "alignment_CC_std": 0.07989536299885444,
+    "alignment_SIM_mean": 0.12313769415561646,
+    "alignment_SIM_std": 0.04042414158314498
+  },
+  "lime": {
+    "deletion_auc_mean": 0.4085916445819894,
+    "deletion_auc_std": 0.30559218894385554,
+    "insertion_auc_mean": 0.8813857500054872,
+    "insertion_auc_std": 0.1362334625783794,
+    "alignment_CC_mean": 0.10747063251250913,
+    "alignment_CC_std": 0.14346388159738996,
+    "alignment_SIM_mean": 0.4155743828674978,
+    "alignment_SIM_std": 0.10880527197284015
+  }
+}
