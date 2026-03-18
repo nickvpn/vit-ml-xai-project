@@ -57,7 +57,7 @@ def plot_baseline_comparison(save_dir):
     cls_maps = [baselines["classification"][m]["mAP"] for m in cls_methods]
 
     # add all model variants
-    for mode_name, color_label in [("cls_only", "ViT cls-only"), ("multitask", "ViT multitask")]:
+    for mode_name, color_label in [("cls_only", "ViT cls-only"), ("multitask", "ViT multitask (KL)")]:
         mode_path = RUNS_DIR / f"eval_{mode_name}.json"
         if mode_path.exists():
             with open(mode_path) as f2:
@@ -75,7 +75,7 @@ def plot_baseline_comparison(save_dir):
     sal_methods = list(baselines["saliency"].keys())
     sal_ccs = [baselines["saliency"][m]["CC"] for m in sal_methods]
 
-    for mode_name, color_label in [("multitask", "ViT multitask"), ("sal_only", "ViT sal-only")]:
+    for mode_name, color_label in [("multitask", "ViT multitask (KL)"), ("sal_only", "ViT sal-only")]:
         mode_path = RUNS_DIR / f"eval_{mode_name}.json"
         if mode_path.exists():
             with open(mode_path) as f2:
