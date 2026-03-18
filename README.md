@@ -1,6 +1,33 @@
 # Multi-Task Vision Transformer with XAI Benchmarking
 
-A multi-task Vision Transformer (DeiT-Small) that jointly performs multi-label image classification (COCO categories) and human saliency prediction (SALICON), with a full explainability analysis pipeline.
+A multi-task Vision Transformer (DeiT-Small) that jointly performs multi-label image classification and human saliency prediction, with a full explainability analysis pipeline.
+
+This project serves two course reports at Florida Institute of Technology:
+
+- **CSE 4224 (Intro to ML)**: focuses on multi-task learning, loss function design (KL vs MSE), and comparison against classical baselines
+- **MTH 4326 (Explainable AI)**: focuses on benchmarking five post-hoc explanation methods across faithfulness, stability, and human alignment
+
+## Overview
+
+### For the ML audience
+
+We fine-tune a pretrained DeiT-Small (a Vision Transformer) to do two things at once: classify images into 20 COCO object categories and predict where humans look (saliency). The key finding is that switching the saliency loss from MSE to KL divergence dramatically improves saliency prediction (CC: 0.196 to 0.899) with minimal impact on classification accuracy.
+
+We also compare the fine-tuned model against classical baselines (logistic regression, MLP, ridge regression) that use frozen features from the same backbone, showing that end-to-end fine-tuning is necessary for strong saliency prediction.
+
+### For the XAI audience
+
+We apply five explanation methods to the trained classifier and evaluate them on three axes:
+
+| Method | Family | Key idea |
+|---|---|---|
+| Gradient saliency | Gradient | How sensitive is the output to each pixel? |
+| Gradient x input | Gradient | Gradient weighted by input intensity |
+| Integrated gradients | Gradient (path) | Accumulated gradients from a zero baseline |
+| Attention rollout | Architecture | Product of attention matrices across layers |
+| LIME | Perturbation | Local linear surrogate on masked inputs |
+
+The central finding is that faithfulness and human alignment are distinct (even inversely related). LIME is the most faithful but does not match human gaze. Integrated gradients offers the best balance across all three axes.
 
 ## Requirements
 
@@ -24,7 +51,7 @@ The project expects two datasets placed under `datasets/`:
 datasets/
   salicon/
     images/
-      train/          # 10,000 COCO-format JPGs (COCO_train2014_XXXXXXXXXXXX.jpg)
+      train/          # 10,000 COCO-format JPGs
       val/            # 5,000 COCO-format JPGs
     train/            # 10,000 saliency map PNGs (matching image IDs)
     val/              # 5,000 saliency map PNGs
@@ -95,7 +122,7 @@ For each sample, runs five explanation methods and evaluates them:
 
 | Method | What it does |
 |---|---|
-| Gradient saliency | Absolute value of input gradients |
+| Gradient saliency | Absolute value of input gradients, max-pooled across channels |
 | Grad x input | Element-wise gradient times input |
 | Integrated gradients | Accumulated gradients along interpolation path (50 steps) |
 | Attention rollout | Multiplied attention matrices across all transformer layers |
@@ -103,8 +130,8 @@ For each sample, runs five explanation methods and evaluates them:
 
 Evaluation metrics computed per method:
 - **Faithfulness**: deletion AUC (lower = better), insertion AUC (higher = better)
-- **Stability**: cosine similarity under Gaussian noise, horizontal flip, brightness shift
-- **Human alignment**: CC and SIM against SALICON ground truth saliency
+- **Stability**: cosine similarity under Gaussian noise, horizontal flip, brightness shift (gradient-based methods only)
+- **Human alignment**: CC and SIM against SALICON fixation maps
 
 Results saved to `runs/xai_results.json`. Comparison figures for the first 5 samples saved to `runs/figures/`.
 
@@ -115,10 +142,10 @@ python -m src.utils.generate_figures
 ```
 
 Generates all summary plots in `runs/figures/`:
-- `training_curves_{mode}.png` — loss and mAP over epochs
-- `baseline_comparison.png` — bar charts comparing baselines vs fine-tuned models
-- `xai_faithfulness_alignment.png` — deletion/insertion AUC and human alignment by method
-- `xai_stability.png` — perturbation stability by method
+- `training_curves_{mode}.png` -- loss and mAP over epochs
+- `baseline_comparison.png` -- bar charts comparing baselines vs fine-tuned models
+- `xai_faithfulness_alignment.png` -- deletion/insertion AUC and human alignment by method
+- `xai_stability.png` -- perturbation stability by method
 
 ### Step 6: Print consolidated results
 
@@ -150,7 +177,8 @@ All hyperparameters and paths are in [src/config.py](src/config.py):
 | `BATCH_SIZE` | 32 | Training and eval batch size |
 | `NUM_EPOCHS` | 15 | Training epochs |
 | `LR` | 1e-4 | Learning rate |
-| `SAL_LOSS_WEIGHT` | 1.0 | Weight of saliency loss in multitask mode |
+| `SAL_LOSS_WEIGHT` | 1.0 | Lambda for saliency loss in multitask mode |
+| `SAL_LOSS_TYPE` | `kl` | Saliency loss function (`kl` or `mse`) |
 | `IMG_SIZE` | 224 | Input image resolution |
 | `GRID_SIZE` | 14 | Saliency map resolution (matches ViT patch grid) |
 
@@ -177,7 +205,7 @@ project1/
       attention_rollout.py     # attention rollout across transformer layers
       faithfulness.py          # deletion and insertion AUC tests
       stability.py             # perturbation stability (noise, flip, brightness)
-      human_alignment.py       # CC/SIM against human saliency ground truth
+      human_alignment.py       # CC/SIM against SALICON fixation maps
       run_xai.py               # orchestrates full XAI analysis
     utils/
       metrics.py               # mAP, CC, SIM, KL-div
@@ -188,12 +216,25 @@ project1/
   notebooks/
     01_data_and_model.ipynb    # data exploration + model demo
     02_xai_analysis.ipynb      # XAI visualization + results
+  report/
+    intro_to_ml/               # CSE 4224 report (NeurIPS format)
+    xai/                       # MTH 4326 report (NeurIPS format)
+    powerpoints/               # presentation slides (Beamer)
   datasets/                    # SALICON + COCO data (not tracked)
   runs/                        # checkpoints, results JSONs, figures (not tracked)
   requirements.txt
 ```
 
-## Quick Start (TL;DR)
+## Reports
+
+| Course | Report | Focus |
+|---|---|---|
+| CSE 4224 (Intro to ML) | `report/intro_to_ml/main.tex` | Multi-task learning, KL vs MSE loss, baselines |
+| MTH 4326 (Explainable AI) | `report/xai/main.tex` | Five XAI methods, faithfulness vs alignment |
+
+Presentations (Beamer) are in `report/powerpoints/`.
+
+## Quick Start
 
 ```bash
 # install
