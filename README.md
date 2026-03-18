@@ -225,14 +225,14 @@ project1/
   requirements.txt
 ```
 
-## Reports
+<!-- ## Reports
 
 | Course | Report | Focus |
 |---|---|---|
 | CSE 4224 (Intro to ML) | `report/intro_to_ml/main.tex` | Multi-task learning, KL vs MSE loss, baselines |
 | MTH 4326 (Explainable AI) | `report/xai/main.tex` | Five XAI methods, faithfulness vs alignment |
 
-Presentations (Beamer) are in `report/powerpoints/`.
+Presentations (Beamer) are in `report/powerpoints/`. -->
 
 ## Quick Start
 
