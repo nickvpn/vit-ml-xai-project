@@ -37,9 +37,9 @@ The classical bias-variance tradeoff predicts that test error rises monotonicall
 
 The classical bias-variance tradeoff teaches that increasing model capacity beyond the interpolation threshold should overfit. Modern practice routinely produces overparameterized models that generalize well, with double-descent test-error curves (Belkin et al., 2019) showing a spike at the interpolation threshold $P \approx N$ and a second descent past it. The central question this project asks is concrete:
 
-\begin{quote}
+\begin{center}
 \emph{Where does the classical curve break, and what fixes it?}
-\end{quote}
+\end{center}
 
 Schaeffer et al.\ (2023) argue that the spike is driven by three factors that act in concert: (a) the smallest singular value of the feature matrix vanishing as $P \to N$, amplified when (b) test-feature variation is concentrated in the trailing singular directions, and only triggered at all when (c) the target contains residuals that are not in the column space of the training features. Removing any one factor flattens the spike.
 
