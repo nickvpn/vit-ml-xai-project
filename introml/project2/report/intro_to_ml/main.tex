@@ -35,7 +35,11 @@ The classical bias-variance tradeoff predicts that test error rises monotonicall
 
 \section{Introduction}
 
-The classical bias-variance tradeoff teaches that increasing model capacity beyond the interpolation threshold should overfit. Modern practice routinely produces overparameterized models that generalize well, with double-descent test-error curves (Belkin et al., 2019) showing a spike at the interpolation threshold $P \approx N$ and a second descent past it. Throughout this report, $N$ is the training-set size and $P$ is the number of random features. The interpolation threshold is the regime where the model has just enough parameters to fit the training data exactly. The central question this project asks is concrete:
+The classical bias-variance tradeoff teaches that increasing model capacity beyond the interpolation threshold should overfit. Modern practice routinely produces overparameterized models that generalize well, with double-descent test-error curves (Belkin et al., 2019) showing a spike at the interpolation threshold $P \approx N$ and a second descent past it. Throughout this report, $N$ is the training-set size and $P$ is the number of random features. The interpolation threshold is the regime where the model has just enough parameters to fit the training data exactly.
+
+Double descent is surprising because classical bias-variance theory predicts only one thing past the interpolation threshold, namely monotonic overfitting, while practice shows a sharp test-error spike followed by a second descent. The phenomenon was widely observed in deep-learning practice for years before Belkin et al.\ (2019) made it a named effect with a clean empirical demonstration. Schaeffer et al.\ (2023) sharpen the question by isolating three factors that jointly produce the spike, each of which can be ablated independently. That gives a concrete experimental program where each factor predicts a separate cure that can be tested in isolation, which is exactly what the rest of this report does.
+
+The central question this project asks is concrete.
 
 \begin{center}
 \emph{Where does the classical curve break, and what fixes it?}
