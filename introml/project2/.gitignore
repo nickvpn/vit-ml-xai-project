@@ -1,0 +1,10 @@
+runs/
+__pycache__/
+*.pyc
+*.aux
+*.log
+*.out
+*.toc
+*.nav
+*.snm
+.DS_Store

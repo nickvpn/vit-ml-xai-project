@@ -1,17 +1,47 @@
 # Multi-Task Vision Transformer with XAI Benchmarking
 
+Two course-project series at Florida Institute of Technology, sharing one multi-task Vision Transformer backbone (DeiT-Small) trained jointly on COCO classification and SALICON saliency.
+
+| Project | CSE 4224 (Intro to ML) | MTH 4326 (Explainable AI) |
+|---|---|---|
+| **Project 1** | Multi-task learning, KL vs MSE loss, classical baselines | Five post-hoc XAI methods on faithfulness, stability, human alignment |
+| **Project 2** | Random features, kernel approximation, double descent on tabular data | Internal-representation analysis (probes, CKA, clustering, sparse autoencoder) of the same three Project 1 ViT variants |
+
+The repo is organized so Project 1 lives at the top level (the original code) and each Project 2 has its own subdirectory.
+
+```
+vit-ml-xai-project/
+├── src/                      # Project 1 code (multi-task ViT + 5 XAI methods)
+├── runs/                     # Project 1 checkpoints and figures
+├── notebooks/                # Project 1 notebooks
+├── scripts/                  # Project 1 figure helpers
+├── report/                   # Project 1 reports (gitignored, kept locally)
+├── requirements.txt          # Project 1 dependencies
+│
+├── xai/project2/             # Project 2: MTH 4326 representation analysis
+│   ├── src/                  # probes, CKA, clustering, SAE, Grad-CAM, SHAP
+│   ├── runs/                 # results JSONs and figures
+│   ├── report/               # NeurIPS-format report and Beamer slides
+│   ├── README.md
+│   └── requirements.txt
+│
+└── introml/project2/         # Project 2: CSE 4224 random features and double descent
+    ├── src/                  # random feature ridge, three-factor ablation, kernel PCA
+    ├── runs/                 # results JSONs and figures
+    ├── report/               # NeurIPS-format report and Beamer slides
+    ├── README.md
+    └── requirements.txt
+```
+
+---
+
+## Project 1: Multi-Task ViT + XAI Benchmarking
+
 A multi-task Vision Transformer (DeiT-Small) that jointly performs multi-label image classification and human saliency prediction, with a full explainability analysis pipeline.
-
-This project serves two course reports at Florida Institute of Technology:
-
-- **CSE 4224 (Intro to ML)**: focuses on multi-task learning, loss function design (KL vs MSE), and comparison against classical baselines
-- **MTH 4326 (Explainable AI)**: focuses on benchmarking five post-hoc explanation methods across faithfulness, stability, and human alignment
-
-## Overview
 
 ### For the ML audience
 
-We fine-tune a pretrained DeiT-Small (a Vision Transformer) to do two things at once: classify images into 20 COCO object categories and predict where humans look (saliency). The key finding is that switching the saliency loss from MSE to KL divergence dramatically improves saliency prediction (CC: 0.196 to 0.899) with minimal impact on classification accuracy.
+We fine-tune a pretrained DeiT-Small to classify images into 20 COCO object categories and predict where humans look (saliency) at the same time. The key finding is that switching the saliency loss from MSE to KL divergence dramatically improves saliency prediction (CC: 0.196 to 0.899) with minimal impact on classification accuracy.
 
 We also compare the fine-tuned model against classical baselines (logistic regression, MLP, ridge regression) that use frozen features from the same backbone, showing that end-to-end fine-tuning is necessary for strong saliency prediction.
 
@@ -29,23 +59,21 @@ We apply five explanation methods to the trained classifier and evaluate them on
 
 The central finding is that faithfulness and human alignment are distinct (even inversely related). LIME is the most faithful but does not match human gaze. Integrated gradients offers the best balance across all three axes.
 
-## Requirements
+### Requirements
 
 - Python 3.8+
 - CUDA-capable GPU (training assumes `cuda`)
 - ~4 GB GPU memory (DeiT-Small with batch size 32)
 
-## Setup
-
 ```bash
 pip install -r requirements.txt
 ```
 
-Dependencies: torch, torchvision, timm, numpy, scipy, scikit-learn, matplotlib, Pillow, lime
+Dependencies: torch, torchvision, timm, numpy, scipy, scikit-learn, matplotlib, Pillow, lime.
 
-## Dataset Preparation
+### Dataset Preparation
 
-The project expects two datasets placed under `datasets/`:
+The project expects two datasets placed under `datasets/` (gitignored):
 
 ```
 datasets/
@@ -66,193 +94,111 @@ datasets/
 
 The dataset class automatically pairs SALICON images with COCO category annotations by matching image IDs. It selects the top-20 most frequent COCO categories for multi-label classification.
 
-## Running the Full Pipeline
+### Pipeline
 
-All commands are run from the project root directory.
-
-### Step 1: Train the models
+All commands run from the project root.
 
 ```bash
-# multitask model (classification + saliency jointly)
+# train all three variants
 python -m src.train.train_multitask --mode multitask
-
-# ablation variants
 python -m src.train.train_multitask --mode cls_only
 python -m src.train.train_multitask --mode sal_only
-```
 
-Each training run:
-- Fine-tunes DeiT-Small for 15 epochs with cosine annealing (lr=1e-4)
-- Saves best checkpoint (by val loss) to `runs/best_{mode}.pt`
-- Saves final checkpoint to `runs/final_{mode}.pt`
-- Saves training history to `runs/history_{mode}.json`
-- Prints val mAP and loss each epoch
-
-Expect ~5-10 minutes per variant on a modern GPU.
-
-### Step 2: Run baselines
-
-```bash
+# classical baselines on frozen DeiT features
 python -m src.train.baselines
-```
 
-Extracts frozen DeiT features (CLS token, 384-dim) and trains:
-- **Classification**: Logistic Regression (OVR), MLP per-label
-- **Saliency**: Mean saliency map, Ridge regression, MLP regressor
-
-Results saved to `runs/baseline_results.json`.
-
-### Step 3: Evaluate trained models
-
-```bash
+# evaluate trained models
 python -m src.train.evaluate --mode multitask
 python -m src.train.evaluate --mode cls_only
 python -m src.train.evaluate --mode sal_only
-```
 
-Computes mAP, CC, SIM, and KL-div on the validation set. Results saved to `runs/eval_{mode}.json`.
-
-### Step 4: Run XAI analysis
-
-```bash
+# XAI analysis (5 methods on 100 validation samples)
 python -m src.xai.run_xai --n_samples 100
-```
 
-For each sample, runs five explanation methods and evaluates them:
-
-| Method | What it does |
-|---|---|
-| Gradient saliency | Absolute value of input gradients, max-pooled across channels |
-| Grad x input | Element-wise gradient times input |
-| Integrated gradients | Accumulated gradients along interpolation path (50 steps) |
-| Attention rollout | Multiplied attention matrices across all transformer layers |
-| LIME | Local surrogate model with 14x14 patch-grid segmentation |
-
-Evaluation metrics computed per method:
-- **Faithfulness**: deletion AUC (lower = better), insertion AUC (higher = better)
-- **Stability**: cosine similarity under Gaussian noise, horizontal flip, brightness shift (gradient-based methods only)
-- **Human alignment**: CC and SIM against SALICON fixation maps
-
-Results saved to `runs/xai_results.json`. Comparison figures for the first 5 samples saved to `runs/figures/`.
-
-### Step 5: Generate report figures
-
-```bash
+# figures and consolidated table
 python -m src.utils.generate_figures
-```
-
-Generates all summary plots in `runs/figures/`:
-- `training_curves_{mode}.png` -- loss and mAP over epochs
-- `baseline_comparison.png` -- bar charts comparing baselines vs fine-tuned models
-- `xai_faithfulness_alignment.png` -- deletion/insertion AUC and human alignment by method
-- `xai_stability.png` -- perturbation stability by method
-
-### Step 6: Print consolidated results
-
-```bash
 python -m src.utils.results_table
 ```
 
-Prints a formatted table of all results (baselines, model eval, XAI metrics).
+### Configuration
 
-## Notebooks
-
-Interactive exploration is available in `notebooks/`:
-
-| Notebook | Purpose |
-|---|---|
-| `01_data_and_model.ipynb` | Data sanity checks, sample visualization, model inference demo |
-| `02_xai_analysis.ipynb` | Side-by-side explanation comparison, XAI results summary |
-
-Run with Jupyter from the project root so imports resolve correctly.
-
-## Configuration
-
-All hyperparameters and paths are in [src/config.py](src/config.py):
+All hyperparameters live in [src/config.py](src/config.py).
 
 | Parameter | Value | Description |
 |---|---|---|
-| `VIT_MODEL_NAME` | `deit_small_patch16_224` | Backbone model (from timm) |
-| `NUM_LABELS` | 20 | Top-K COCO categories for classification |
+| `VIT_MODEL_NAME` | `deit_small_patch16_224` | Backbone (from timm) |
+| `NUM_LABELS` | 20 | Top-K COCO categories |
 | `BATCH_SIZE` | 32 | Training and eval batch size |
 | `NUM_EPOCHS` | 15 | Training epochs |
 | `LR` | 1e-4 | Learning rate |
 | `SAL_LOSS_WEIGHT` | 1.0 | Lambda for saliency loss in multitask mode |
 | `SAL_LOSS_TYPE` | `kl` | Saliency loss function (`kl` or `mse`) |
 | `IMG_SIZE` | 224 | Input image resolution |
-| `GRID_SIZE` | 14 | Saliency map resolution (matches ViT patch grid) |
+| `GRID_SIZE` | 14 | Saliency map resolution (matches patch grid) |
 
-## Project Structure
+---
 
-```
-project1/
-  src/
-    config.py                  # paths, hyperparameters, device
-    seed.py                    # reproducibility (seed=42)
-    data/
-      salicon_coco.py          # dataset: pairs SALICON images with COCO labels
-      transforms.py            # image transforms (ImageNet norm) + saliency transforms
-    models/
-      vit_multitask.py         # DeiT-Small + cls_head + sal_head, build_model() factory
-    train/
-      train_multitask.py       # training loop (multitask / cls_only / sal_only)
-      baselines.py             # sklearn baselines on frozen DeiT features
-      evaluate.py              # compute mAP, CC, SIM, KL on val set
-    xai/
-      gradient_saliency.py     # vanilla gradient + grad x input
-      ig_explain.py            # integrated gradients
-      lime_explain.py          # LIME with patch-grid segmentation
-      attention_rollout.py     # attention rollout across transformer layers
-      faithfulness.py          # deletion and insertion AUC tests
-      stability.py             # perturbation stability (noise, flip, brightness)
-      human_alignment.py       # CC/SIM against SALICON fixation maps
-      run_xai.py               # orchestrates full XAI analysis
-    utils/
-      metrics.py               # mAP, CC, SIM, KL-div
-      viz.py                   # plotting and visualization helpers
-      io.py                    # checkpoint save/load
-      generate_figures.py      # generates all report figures
-      results_table.py         # prints consolidated results table
-  notebooks/
-    01_data_and_model.ipynb    # data exploration + model demo
-    02_xai_analysis.ipynb      # XAI visualization + results
-  report/
-    intro_to_ml/               # CSE 4224 report (NeurIPS format)
-    xai/                       # MTH 4326 report (NeurIPS format)
-    powerpoints/               # presentation slides (Beamer)
-  datasets/                    # SALICON + COCO data (not tracked)
-  runs/                        # checkpoints, results JSONs, figures (not tracked)
-  requirements.txt
-```
+## Project 2 (XAI): Representation Analysis of Multi-Task Vision Transformers
 
-<!-- ## Reports
+Lives in [`xai/project2/`](xai/project2/). Internal-representation analysis of the three Project 1 ViT variants (classifier-only, saliency-only, multi-task), using methods entirely disjoint from Project 1's attribution methods.
 
-| Course | Report | Focus |
-|---|---|---|
-| CSE 4224 (Intro to ML) | `report/intro_to_ml/main.tex` | Multi-task learning, KL vs MSE loss, baselines |
-| MTH 4326 (Explainable AI) | `report/xai/main.tex` | Five XAI methods, faithfulness vs alignment |
+**Question.** Project 1 found that the three variants produce different attribution maps. Are those differences anchored in real internal-representation differences, or are the explanation methods themselves noisy?
 
-Presentations (Beamer) are in `report/powerpoints/`. -->
+**Methods.** Per-layer linear probing, debiased Centered Kernel Alignment with Procrustes and SVCCA in parallel, patch-token clustering, and an exploratory TopK sparse autoencoder feature ablation. Grad-CAM and Kernel SHAP as attribution baselines.
 
-## Quick Start
+**Headline finding.** The multi-task backbone is asymmetrically classifier-aligned. Procrustes alignment with classifier-only stays at 0.84 at the final layer while alignment with saliency-only falls to 0.41. Multi-task is the only variant whose patch-token clusters simultaneously carry both category and saliency structure.
 
 ```bash
-# install
+cd xai/project2
 pip install -r requirements.txt
-
-# train all variants
-python -m src.train.train_multitask --mode multitask
-python -m src.train.train_multitask --mode cls_only
-python -m src.train.train_multitask --mode sal_only
-
-# baselines + evaluation
-python -m src.train.baselines
-python -m src.train.evaluate --mode multitask
-python -m src.train.evaluate --mode cls_only
-python -m src.train.evaluate --mode sal_only
-
-# xai analysis + figures
-python -m src.xai.run_xai --n_samples 100
+python -m src.representation.probes
+python -m src.representation.cka
+python -m src.representation.clustering
+python -m src.representation.sae
+python -m src.xai.grad_cam
+python -m src.xai.shap_explain
 python -m src.utils.generate_figures
 python -m src.utils.results_table
 ```
+
+See [`xai/project2/README.md`](xai/project2/README.md) for full details.
+
+---
+
+## Project 2 (Intro ML): Random Features and Double Descent
+
+Lives in [`introml/project2/`](introml/project2/). An empirical study of random-feature ridge regression on California Housing that connects three foundational ideas: kernel approximation by random Fourier features, the double-descent test-error spike, and the three-factor explanation of double descent from Schaeffer et al. 2023.
+
+**Headline finding.** Test MSE peaks at $P \approx 300$ (just past $N = 256$) at 1.21, then descends to 0.75 at $P = 4096$. Each of the three Schaeffer factors (ridge regularization, leading-mode projection, noiseless target) eliminates the spike independently. The smallest singular value of the random feature matrix collapses to $6 \times 10^{-7}$ exactly at $P = N$, the structural witness for the spike.
+
+```bash
+cd introml/project2
+pip install -r requirements.txt
+python -m src.models.baselines
+python -m src.models.random_feature_ridge
+python -m src.models.three_factor_ablation
+python -m src.models.kernel_pca_spectral
+python -m src.utils.generate_figures
+python -m src.utils.results_table
+```
+
+See [`introml/project2/README.md`](introml/project2/README.md) for full details.
+
+---
+
+## Reports
+
+Project 1 reports live under `report/` (gitignored). Project 2 reports are tracked under each subdirectory's `report/`:
+
+| Course | Project | Path |
+|---|---|---|
+| CSE 4224 (Intro to ML) | 1 | `report/intro_to_ml/main.tex` |
+| MTH 4326 (Explainable AI) | 1 | `report/xai/main.tex` |
+| CSE 4224 (Intro to ML) | 2 | `introml/project2/report/intro_to_ml/main.tex` |
+| MTH 4326 (Explainable AI) | 2 | `xai/project2/report/xai/main.tex` |
+
+Beamer slide decks are alongside each report under `report/powerpoints/`.
+
+## Reproducibility
+
+All experiments use seed 42. Project 2 reuses Project 1's trained checkpoints (`runs/best_*.pt`); no retraining is required for Project 2.
