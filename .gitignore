@@ -1,10 +1,18 @@
 /brainstorming
 /datasets
-/report
+/report/inspiration
 
 *.pt
 *.pth
 *.ckpt
+
+# latex build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.nav
+*.snm
 
 __pycache__/
 .ipynb_checkpoints/
