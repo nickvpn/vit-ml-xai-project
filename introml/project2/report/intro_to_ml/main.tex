@@ -56,7 +56,7 @@ We reproduce the double-descent curve with random Fourier features on a tabular 
 \section{Related Work}
 
 \paragraph{Random features.}
-Rahimi and Recht (2007) introduced random Fourier features as a stochastic approximation to translation-invariant kernels: sampling random frequencies $\omega_i \sim \mathcal{N}(0, \sigma^{-2} I)$ and phases $b_i \sim \mathrm{Unif}(0, 2\pi)$, the map $\phi(x)_i = \sqrt{2/P}\, \cos(\omega_i^\top x + b_i)$ produces a feature embedding whose inner product approximates the RBF kernel as $P$ grows.
+Rahimi and Recht (2007) introduced random Fourier features as a stochastic approximation to translation-invariant kernels. The construction samples random frequencies $\omega_i \sim \mathcal{N}(0, \sigma^{-2} I)$ and phases $b_i \sim \mathrm{Unif}(0, 2\pi)$, and the map $\phi(x)_i = \sqrt{2/P}\, \cos(\omega_i^\top x + b_i)$ produces a feature embedding whose inner product approximates the RBF kernel as $P$ grows.
 
 \paragraph{Double descent.}
 Belkin et al.\ (2019) documented the phenomenon empirically across linear models, decision trees, and neural networks. Many subsequent papers have studied its mechanism in linear and random-feature regression (Hastie et al., 2022, Bartlett et al., 2020, Mei and Montanari, 2022). The geometry-driven account in Schaeffer et al.\ (2023) identifies three factors that jointly produce the spike, with each factor sufficient to remove it.
@@ -80,7 +80,7 @@ We sweep
 \[
 P \in \{4, 8, 16, 32, 64, 128, 200, 240, 256, 272, 300, 350, 512, 1024, 2048, 4096\},
 \]
-with three random-feature seeds per $P$. For each $P$, we fit ridge regression with $\lambda = 10^{-3}$ as the default. Closed-form solution: in the underparameterized regime $P < N$ we solve $(\Phi^\top \Phi + \lambda I) w = \Phi^\top y$. In the overparameterized regime $P \geq N$ we use the dual form $w = \Phi^\top (\Phi \Phi^\top + \lambda I)^{-1} y$ for numerical stability.
+with three random-feature seeds per $P$. For each $P$, we fit ridge regression with $\lambda = 10^{-3}$ as the default. We use the closed-form solution. In the underparameterized regime $P < N$ we solve $(\Phi^\top \Phi + \lambda I) w = \Phi^\top y$. In the overparameterized regime $P \geq N$ we use the dual form $w = \Phi^\top (\Phi \Phi^\top + \lambda I)^{-1} y$ for numerical stability.
 
 \paragraph{Headline metric.}
 We report mean squared error (MSE) on the test holdout, averaged over three random-feature seeds. Lower is better. All MSE values are reported on standardized targets (zero mean and unit variance on the training subset), so a mean predictor scores around $0.84$ and a perfect predictor would score $0.00$.
@@ -184,10 +184,10 @@ Figure~\ref{fig:kpca} shows the singular spectrum of the random feature matrix a
 \section{Discussion}
 
 \paragraph{Putting the story together.}
-Returning to the central question: where does the classical bias-variance curve break, and what fixes it? It breaks because the ridgeless interpolator at $P = N$ is built on top of a near-singular feature matrix. The smallest singular value of $\Phi_{\text{train}}$ drops to machine precision exactly at $P = N$, the test MSE blows up to $\sim 2 \times 10^4$, and any of three independent fixes (ridge regularization, projection onto the leading singular directions, or a noiseless target) brings it back to near $0.3$. The geometry and the Schaeffer et al.\ account match.
+Returning to the central question. Where does the classical bias-variance curve break, and what fixes it? It breaks because the ridgeless interpolator at $P = N$ is built on top of a near-singular feature matrix. The smallest singular value of $\Phi_{\text{train}}$ drops to machine precision exactly at $P = N$, the test MSE blows up to $\sim 2 \times 10^4$, and any of three independent fixes (ridge regularization, projection onto the leading singular directions, or a noiseless target) brings it back to near $0.3$. The geometry and the Schaeffer et al.\ account match.
 
 \paragraph{All three factors are real, and any one is sufficient to flatten the spike.}
-The Schaeffer et al.\ (2023) account predicts that ridge regularization, leading-mode projection, and noiseless targets are each sufficient to eliminate the test-error spike near $P = N$. Our results confirm this on California Housing. The most dramatic factor is ridge: lifting $\lambda$ to $10^{-1}$ at the threshold reduces test MSE by four orders of magnitude, from a numerical-instability blowup to $0.31$. The most surprising factor in absolute terms is leading-mode projection: at $k = N/4$, test MSE at the threshold is $0.35$, matching the best ridge result without using $\lambda$ at all.
+The Schaeffer et al.\ (2023) account predicts that ridge regularization, leading-mode projection, and noiseless targets are each sufficient to eliminate the test-error spike near $P = N$. Our results confirm this on California Housing. The most dramatic factor is ridge. Lifting $\lambda$ to $10^{-1}$ at the threshold reduces test MSE by four orders of magnitude, from a numerical-instability blowup to $0.31$. The most surprising factor in absolute terms is leading-mode projection. At $k = N/4$, test MSE at the threshold is $0.35$, matching the best ridge result without using $\lambda$ at all.
 
 \paragraph{The geometry of the spike: smallest singular value.}
 The smallest singular value of $\Phi_{\text{train}}$ drops to machine precision exactly at $P = N$ (Figure~\ref{fig:smallest}). The location of this dip matches the location of the test-MSE spike to within the resolution of our $P$ grid. This is the structural quantity that ridge stabilizes (factor a), that leading-mode projection sidesteps (factor b), and that has no error to amplify when targets are noiseless (factor c).
