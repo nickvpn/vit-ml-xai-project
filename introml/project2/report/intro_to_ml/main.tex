@@ -41,7 +41,7 @@ The classical bias-variance tradeoff teaches that increasing model capacity beyo
 \emph{Where does the classical curve break, and what fixes it?}
 \end{center}
 
-Schaeffer et al.\ (2023) argue that the spike is driven by three factors that act in concert: (a) the smallest singular value of the feature matrix vanishing as $P \to N$, amplified when (b) test-feature variation is concentrated in the trailing singular directions, and only triggered at all when (c) the target contains residuals that are not in the column space of the training features. Removing any one factor flattens the spike.
+Schaeffer et al.\ (2023) argue that the spike is driven by three factors that act in concert. Factor (a) is the smallest singular value of the feature matrix vanishing as $P \to N$. Factor (b) is test-feature variation concentrated in the trailing singular directions, which amplifies (a). Factor (c) is the presence of target residuals that are not in the column space of the training features, which is what (a) and (b) ultimately amplify. Removing any one factor flattens the spike.
 
 We reproduce the double-descent curve with random Fourier features on a tabular regression task (California Housing) and test the three-factor explanation by ablating each factor in turn. The same random-feature pipeline approximates the exact RBF kernel ridge regressor as $P \to \infty$, recovering the Rahimi and Recht (2007) kernel-approximation reference point on the same code.
 
@@ -73,7 +73,7 @@ Random-feature ridge regression is the cleanest setting for studying double desc
 California Housing (Pace and Barry, 1997) provides $20\,640$ rows with 8 numeric features and a continuous target. We load it through scikit-learn's built-in loader. We hold out $20\%$ of the rows as a fixed test set ($N_{\text{test}} = 4128$) and take a small training subset of $N = 256$ rows from the remaining $80\%$. Both features and target are standardized using statistics from the training subset only. Holding $N$ small makes the interpolation threshold $P = N$ cheap to span.
 
 \paragraph{Random Fourier features.}
-We use the cosine variant from Rahimi and Recht (2007): $\phi(x)_i = \sqrt{2/P}\, \cos(\omega_i^\top x + b_i)$ with $\omega_i \sim \mathcal{N}(0, \sigma^{-2} I_d)$ and $b_i \sim \mathrm{Unif}(0, 2\pi)$. The "cosine" name distinguishes this from the sin/cos paired version, where each random direction contributes two features (a sine and a cosine) instead of one. The cosine variant uses one cosine feature per direction with a uniform random phase. Bandwidth $\sigma = 2.279$ is set by the median pairwise-distance heuristic on the training subset.
+We use the cosine variant from Rahimi and Recht (2007), $\phi(x)_i = \sqrt{2/P}\, \cos(\omega_i^\top x + b_i)$ with $\omega_i \sim \mathcal{N}(0, \sigma^{-2} I_d)$ and $b_i \sim \mathrm{Unif}(0, 2\pi)$. The "cosine" name distinguishes this from the sin/cos paired version, where each random direction contributes two features (a sine and a cosine) instead of one. The cosine variant uses one cosine feature per direction with a uniform random phase. Bandwidth $\sigma = 2.279$ is set by the median pairwise-distance heuristic on the training subset.
 
 \paragraph{Sweep configuration.}
 We sweep
@@ -189,7 +189,7 @@ Returning to the central question. Where does the classical bias-variance curve 
 \paragraph{All three factors are real, and any one is sufficient to flatten the spike.}
 The Schaeffer et al.\ (2023) account predicts that ridge regularization, leading-mode projection, and noiseless targets are each sufficient to eliminate the test-error spike near $P = N$. Our results confirm this on California Housing. The most dramatic factor is ridge. Lifting $\lambda$ to $10^{-1}$ at the threshold reduces test MSE by four orders of magnitude, from a numerical-instability blowup to $0.31$. The most surprising factor in absolute terms is leading-mode projection. At $k = N/4$, test MSE at the threshold is $0.35$, matching the best ridge result without using $\lambda$ at all.
 
-\paragraph{The geometry of the spike: smallest singular value.}
+\paragraph{The geometry of the spike (smallest singular value).}
 The smallest singular value of $\Phi_{\text{train}}$ drops to machine precision exactly at $P = N$ (Figure~\ref{fig:smallest}). The location of this dip matches the location of the test-MSE spike to within the resolution of our $P$ grid. This is the structural quantity that ridge stabilizes (factor a), that leading-mode projection sidesteps (factor b), and that has no error to amplify when targets are noiseless (factor c).
 
 \paragraph{On the choice of dataset and kernel.}
