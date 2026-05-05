@@ -70,13 +70,17 @@ Exact RBF kernel ridge regression solves $\hat{\alpha} = (K + \lambda I)^{-1} y$
 Random-feature ridge regression is the cleanest setting for studying double descent. Image and text data introduce architecture-specific confounds (convolutional inductive biases, attention patterns) that mask the pure feature-and-regression dynamics that the three-factor account predicts. Tabular regression isolates exactly the behavior under study.
 
 \paragraph{Dataset.}
-California Housing (Pace and Barry, 1997, via \texttt{sklearn.datasets.fetch\_california\_housing}) provides $20\,640$ rows with 8 numeric features and a continuous target. We hold out $20\%$ of the rows as a fixed test set ($N_{\text{test}} = 4128$) and take a small training subset of $N = 256$ rows from the remaining $80\%$. Both features and target are standardized using statistics from the training subset only. Holding $N$ small makes the interpolation threshold $P = N$ cheap to span.
+California Housing (Pace and Barry, 1997) provides $20\,640$ rows with 8 numeric features and a continuous target. We load it through scikit-learn's built-in loader. We hold out $20\%$ of the rows as a fixed test set ($N_{\text{test}} = 4128$) and take a small training subset of $N = 256$ rows from the remaining $80\%$. Both features and target are standardized using statistics from the training subset only. Holding $N$ small makes the interpolation threshold $P = N$ cheap to span.
 
 \paragraph{Random Fourier features.}
 We use the cosine variant from Rahimi and Recht (2007): $\phi(x)_i = \sqrt{2/P}\, \cos(\omega_i^\top x + b_i)$ with $\omega_i \sim \mathcal{N}(0, \sigma^{-2} I_d)$ and $b_i \sim \mathrm{Unif}(0, 2\pi)$. The "cosine" name distinguishes this from the sin/cos paired version, where each random direction contributes two features (a sine and a cosine) instead of one. The cosine variant uses one cosine feature per direction with a uniform random phase. Bandwidth $\sigma = 2.279$ is set by the median pairwise-distance heuristic on the training subset.
 
 \paragraph{Sweep configuration.}
-We sweep $P \in \{4, 8, 16, 32, 64, 128, 200, 240, 256, 272, 300, 350, 512, 1024, 2048, 4096\}$, with three random-feature seeds per $P$. For each $P$, we fit ridge regression with $\lambda = 10^{-3}$ as the default. Closed-form solution: in the underparameterized regime $P < N$ we solve $(\Phi^\top \Phi + \lambda I) w = \Phi^\top y$. In the overparameterized regime $P \geq N$ we use the dual form $w = \Phi^\top (\Phi \Phi^\top + \lambda I)^{-1} y$ for numerical stability.
+We sweep
+\[
+P \in \{4, 8, 16, 32, 64, 128, 200, 240, 256, 272, 300, 350, 512, 1024, 2048, 4096\},
+\]
+with three random-feature seeds per $P$. For each $P$, we fit ridge regression with $\lambda = 10^{-3}$ as the default. Closed-form solution: in the underparameterized regime $P < N$ we solve $(\Phi^\top \Phi + \lambda I) w = \Phi^\top y$. In the overparameterized regime $P \geq N$ we use the dual form $w = \Phi^\top (\Phi \Phi^\top + \lambda I)^{-1} y$ for numerical stability.
 
 \paragraph{Headline metric.}
 We report mean squared error (MSE) on the test holdout, averaged over three random-feature seeds. Lower is better. All MSE values are reported on standardized targets (zero mean and unit variance on the training subset), so a mean predictor scores around $0.84$ and a perfect predictor would score $0.00$.
