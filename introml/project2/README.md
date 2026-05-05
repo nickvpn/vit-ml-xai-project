@@ -1,6 +1,6 @@
 # Intro to ML Project 2: Random Features, Kernel Approximation, and Double Descent
 
-Empirical study of random-feature ridge regression on a tabular regression task. The setup connects three foundational ideas: random features as a kernel approximation, the double-descent test-error curve, and the three-factor explanation of double descent from Schaeffer et al.\ (2023).
+Empirical study of random-feature ridge regression on a tabular regression task. The setup connects three foundational ideas: random features as a kernel approximation, the double-descent test-error curve, and the three-factor explanation of double descent from Schaeffer et al. (2023).
 
 This project is for CSE 4224 (Intro to Machine Learning) at Florida Institute of Technology.
 
@@ -25,7 +25,7 @@ pip install -r requirements.txt
 
 ## Dataset
 
-UCI California Housing (8 features, ~20{,}000 rows). Loaded via scikit-learn's built-in loader. Standardized features and target. Training subset of size `N = 256` to make the interpolation threshold cheap to span.
+UCI California Housing (8 features, 20,000 rows). Loaded via scikit-learn's built-in loader. Standardized features and target. Training subset of size `N = 256` to make the interpolation threshold cheap to span.
 
 ## Pipeline
 
