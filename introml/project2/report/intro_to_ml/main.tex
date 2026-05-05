@@ -30,14 +30,20 @@
 \maketitle
 
 \begin{abstract}
-We study random-feature ridge regression on a tabular regression task and use the same pipeline to connect three foundational ideas. First, we show that random Fourier features (Rahimi and Recht, 2007) approximate exact RBF kernel ridge regression as the number of features $P$ grows. Second, we sweep $P$ across the interpolation threshold $P = N$ and reproduce the classical double-descent test-error curve (Belkin, Hsu, Ma, and Mandal, 2019) on California Housing. Third, we test the three-factor explanation of double descent from Schaeffer et al.\ (2023) by ablating each factor in turn: ridge regularization, leading-singular-direction projection, and noiseless targets. Each ablation eliminates the spike at $P = N$, confirming that all three factors contribute. We pair this with kernel-PCA spectral analysis showing the smallest singular value of the random feature matrix collapsing to near zero at $P = N$, which is the structural source of the spike.
+The classical bias-variance tradeoff predicts that test error rises monotonically once a model has more parameters than training points. The double-descent phenomenon (Belkin et al., 2019) contradicts that prediction, showing a spike at the interpolation threshold $P = N$ followed by a second descent. This project reproduces the spike on California Housing using random Fourier feature ridge regression and tests the three-factor explanation of Schaeffer et al.\ (2023) by ablating each factor in turn. Ridge regularization, leading-singular-direction projection, and noiseless targets each eliminate the spike on their own, with ridge $\lambda = 0.1$ collapsing test MSE at $P = N$ from $\sim 2 \times 10^4$ to $0.31$. The smallest singular value of the random feature matrix drops to $6 \times 10^{-7}$ exactly at $P = N$ and recovers in the overparameterized regime, confirming the geometric source of the spike. Random-feature ridge also approaches exact RBF kernel ridge as $P \to \infty$, recovering the Rahimi and Recht (2007) kernel-approximation result on the same pipeline.
 \end{abstract}
 
 \section{Introduction}
 
-The bias-variance tradeoff teaches that increasing model capacity beyond the interpolation threshold should overfit. The double-descent phenomenon (Belkin et al., 2019) shows that for many overparameterized models, test error decreases again as capacity grows past the threshold, producing a characteristic two-descent curve with a spike at $P \approx N$. Schaeffer et al.\ (2023) argue that the spike is driven by three factors that act in concert: (a) the smallest singular value of the feature matrix vanishing as $P \to N$, amplified when (b) test-feature variation is concentrated in the trailing singular directions, and only triggered at all when (c) the target contains residuals that are not in the column space of the training features. Removing any one factor flattens the spike.
+The classical bias-variance tradeoff teaches that increasing model capacity beyond the interpolation threshold should overfit. Modern practice routinely produces overparameterized models that generalize well, with double-descent test-error curves (Belkin et al., 2019) showing a spike at the interpolation threshold $P \approx N$ and a second descent past it. The central question this project asks is concrete:
 
-This project reproduces the double-descent curve with random Fourier features on a tabular regression task and tests the three-factor explanation by ablating each factor in turn. The same random-feature pipeline approximates the exact RBF kernel ridge regressor as $P \to \infty$, providing the kernel-approximation reference point that motivated random features in the first place.
+\begin{quote}
+\emph{Where does the classical curve break, and what fixes it?}
+\end{quote}
+
+Schaeffer et al.\ (2023) argue that the spike is driven by three factors that act in concert: (a) the smallest singular value of the feature matrix vanishing as $P \to N$, amplified when (b) test-feature variation is concentrated in the trailing singular directions, and only triggered at all when (c) the target contains residuals that are not in the column space of the training features. Removing any one factor flattens the spike.
+
+We reproduce the double-descent curve with random Fourier features on a tabular regression task (California Housing) and test the three-factor explanation by ablating each factor in turn. The same random-feature pipeline approximates the exact RBF kernel ridge regressor as $P \to \infty$, recovering the Rahimi and Recht (2007) kernel-approximation reference point on the same code.
 
 \subsection{Contributions}
 \begin{itemize}
@@ -172,6 +178,9 @@ Figure~\ref{fig:kpca} shows the singular spectrum of the random feature matrix a
 \end{figure}
 
 \section{Discussion}
+
+\paragraph{Putting the story together.}
+Returning to the central question: where does the classical bias-variance curve break, and what fixes it? It breaks because the ridgeless interpolator at $P = N$ is built on top of a near-singular feature matrix. The smallest singular value of $\Phi_{\text{train}}$ drops to machine precision exactly at $P = N$, the test MSE blows up to $\sim 2 \times 10^4$, and any of three independent fixes (ridge regularization, projection onto the leading singular directions, or a noiseless target) brings it back to near $0.3$. The geometry and the Schaeffer et al.\ account match.
 
 \paragraph{All three factors are real, and any one is sufficient to flatten the spike.}
 The Schaeffer et al.\ (2023) account predicts that ridge regularization, leading-mode projection, and noiseless targets are each sufficient to eliminate the test-error spike at $P = N$. Our results confirm this on California Housing. The most dramatic factor is ridge: lifting $\lambda$ to $10^{-1}$ at the threshold reduces test MSE by four orders of magnitude, from a numerical-instability blowup to $0.31$. The most surprising factor in absolute terms is leading-mode projection: at $k = N/4$, test MSE at the threshold is $0.35$, matching the best ridge result without using $\lambda$ at all.
