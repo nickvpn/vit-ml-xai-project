@@ -49,6 +49,8 @@ Schaeffer et al.\ (2023) argue that the spike is driven by three factors that ac
 
 We reproduce the double-descent curve with random Fourier features on a tabular regression task (California Housing) and test the three-factor explanation by ablating each factor in turn. The same random-feature pipeline approximates the exact RBF kernel ridge regressor as $P \to \infty$, recovering the Rahimi and Recht (2007) kernel-approximation reference point on the same code.
 
+Random Fourier features are also useful in their own right as a scalable kernel approximation. Exact kernel methods compute and store an $N \times N$ kernel matrix at $O(N^2)$ memory and $O(N^3)$ training cost, which becomes prohibitive once $N$ grows past a few thousand. Rahimi and Recht (2007) showed that sampling $P$ random features produces an explicit $P$-dimensional embedding whose inner product converges in expectation to the kernel value as $P$ grows, so random-feature ridge converges to exact kernel ridge while costing only $O(NP)$. We use this convergence as a sanity check on the pipeline, anchoring the random-feature ridge sweep against an exact RBF kernel ridge baseline at the same bandwidth.
+
 \subsection{Contributions}
 \begin{itemize}
   \item \textbf{Reproduction of double descent on California Housing.} Test MSE peaks at $P \approx 300$ ($N = 256$) at $1.21$ and descends to $0.75$ in the overparameterized regime ($P = 4096$).
