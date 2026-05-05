@@ -1,4 +1,4 @@
-# Intro to ML Project 2 — Random Features, Kernel Approximation, and Double Descent
+# Intro to ML Project 2: Random Features, Kernel Approximation, and Double Descent
 
 Empirical study of random-feature ridge regression on a tabular regression task. The setup connects three foundational ideas: random features as a kernel approximation, the double-descent test-error curve, and the three-factor explanation of double descent from Schaeffer et al.\ (2023).
 
@@ -8,9 +8,9 @@ This project is for CSE 4224 (Intro to Machine Learning) at Florida Institute of
 
 We use random Fourier features (Rahimi and Recht, 2007) to approximate an RBF kernel, then sweep the number of features `P` from underparameterized through the interpolation threshold (`P = N`) to overparameterized. We reproduce the double-descent test-error spike and run three ablations that each remove one of the factors hypothesized to drive the spike:
 
-1. **Ridge regularization** — increase `λ` to suppress small singular values of the random feature matrix.
-2. **Leading-mode projection** — project test features onto the top-`k` singular directions of the training feature matrix.
-3. **Noiseless target** — replace `y` with the best linear fit on raw features (a noise-free target).
+1. **Ridge regularization.** Increase `λ` to suppress small singular values of the random feature matrix.
+2. **Leading-mode projection.** Project test features onto the top-`k` singular directions of the training feature matrix.
+3. **Noiseless target.** Replace `y` with the best linear fit on raw features (a noise-free target).
 
 Each ablation is predicted to flatten the spike. We report kernel-PCA-style spectral analysis to confirm the singular-value collapse near `P = N`.
 
@@ -25,7 +25,7 @@ pip install -r requirements.txt
 
 ## Dataset
 
-UCI California Housing (8 features, ~20{,}000 rows; loaded via `sklearn.datasets.fetch_california_housing`). Standardized features and target. Training subset of size `N = 256` to make the interpolation threshold cheap to span.
+UCI California Housing (8 features, ~20{,}000 rows). Loaded via scikit-learn's built-in loader. Standardized features and target. Training subset of size `N = 256` to make the interpolation threshold cheap to span.
 
 ## Pipeline
 

@@ -33,7 +33,6 @@ vit-ml-xai-project/
     └── requirements.txt
 ```
 
----
 
 ## Project 1: Multi-Task ViT + XAI Benchmarking
 
@@ -136,7 +135,6 @@ All hyperparameters live in [src/config.py](src/config.py).
 | `IMG_SIZE` | 224 | Input image resolution |
 | `GRID_SIZE` | 14 | Saliency map resolution (matches patch grid) |
 
----
 
 ## Project 2 (XAI): Representation Analysis of Multi-Task Vision Transformers
 
@@ -163,7 +161,6 @@ python -m src.utils.results_table
 
 See [`xai/project2/README.md`](xai/project2/README.md) for full details.
 
----
 
 ## Project 2 (Intro ML): Random Features and Double Descent
 
@@ -184,7 +181,6 @@ python -m src.utils.results_table
 
 See [`introml/project2/README.md`](introml/project2/README.md) for full details.
 
----
 
 ## Reports
 
@@ -201,4 +197,4 @@ Beamer slide decks are alongside each report under `report/powerpoints/`.
 
 ## Reproducibility
 
-All experiments use seed 42. Project 2 reuses Project 1's trained checkpoints (`runs/best_*.pt`); no retraining is required for Project 2.
+All experiments use seed 42. Project 2 reuses Project 1's trained checkpoints (`runs/best_*.pt`). No retraining is required for Project 2.

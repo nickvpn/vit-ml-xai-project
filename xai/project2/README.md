@@ -1,4 +1,4 @@
-# XAI Project 2 — Representation Analysis of Multi-Task Vision Transformers
+# XAI Project 2: Representation Analysis of Multi-Task Vision Transformers
 
 Internal-representation analysis of the three Vision Transformer variants (classifier-only, saliency-only, multi-task) trained in Project 1 (`~/projects/xai/project1/`). Project 1 evaluated five output-level explanation methods and showed that attribution maps differ across the three variants. Project 2 asks whether those output-level differences are anchored in genuinely different internal representations, or whether the models encode the input similarly and the disagreement originates in the explanation methods themselves.
 
@@ -11,10 +11,10 @@ This project is for MTH 4326 (Explainable AI) at Florida Institute of Technology
 | Linear probing | Decodability | Per-layer linear probes for class label, saliency, and object location, with random-label control. |
 | Centered Kernel Alignment | Representation similarity | Pairwise similarity between layer activations across the three variants, debiased estimator. |
 | Procrustes / SVCCA | Representation similarity | Complementary metrics, since CKA is sensitive to subset translations and population structure. |
-| Patch-token clustering | Geometry | K-means on patch-token embeddings; report cluster purity and NMI against COCO labels and saliency quartiles. |
-| Sparse autoencoder (exploratory) | Feature decomposition | TopK SAE on the multi-task variant's mid-layer residual stream; feature ablation against both heads. |
+| Patch-token clustering | Geometry | K-means on patch-token embeddings, with cluster purity and NMI against COCO labels and saliency quartiles. |
+| Sparse autoencoder (exploratory) | Feature decomposition | TopK SAE on the multi-task variant's mid-layer residual stream, with feature ablation against both heads. |
 | Grad-CAM (class-method baseline, Lecture 9) | Attribution | Representation-space attribution at block 10 (Selvaraju et al.\ 2017). The class-method requirement for Project 2 benchmarking. |
-| SHAP (additional baseline) | Attribution | Kernel SHAP at the 14×14 patch grid; included as a perturbation-based comparison to Grad-CAM. |
+| SHAP (additional baseline) | Attribution | Kernel SHAP at the 14×14 patch grid, included as a perturbation-based comparison to Grad-CAM. |
 
 ## Requirements
 
