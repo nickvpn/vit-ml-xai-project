@@ -35,7 +35,7 @@ The classical bias-variance tradeoff predicts that test error rises monotonicall
 
 \section{Introduction}
 
-The classical bias-variance tradeoff teaches that increasing model capacity beyond the interpolation threshold should overfit. Modern practice routinely produces overparameterized models that generalize well, with double-descent test-error curves (Belkin et al., 2019) showing a spike at the interpolation threshold $P \approx N$ and a second descent past it. The central question this project asks is concrete:
+The classical bias-variance tradeoff teaches that increasing model capacity beyond the interpolation threshold should overfit. Modern practice routinely produces overparameterized models that generalize well, with double-descent test-error curves (Belkin et al., 2019) showing a spike at the interpolation threshold $P \approx N$ and a second descent past it. Throughout this report, $N$ is the training-set size and $P$ is the number of random features. The interpolation threshold is the regime where the model has just enough parameters to fit the training data exactly. The central question this project asks is concrete:
 
 \begin{center}
 \emph{Where does the classical curve break, and what fixes it?}
