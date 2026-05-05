@@ -30,7 +30,7 @@
 \maketitle
 
 \begin{abstract}
-The classical bias-variance tradeoff predicts that test error rises monotonically once a model has more parameters than training points. The double-descent phenomenon (Belkin et al., 2019) contradicts that prediction, showing a spike at the interpolation threshold $P = N$ followed by a second descent. This project reproduces the spike on California Housing using random Fourier feature ridge regression and tests the three-factor explanation of Schaeffer et al.\ (2023) by ablating each factor in turn. Ridge regularization, leading-singular-direction projection, and noiseless targets each eliminate the spike on their own, with ridge $\lambda = 0.1$ collapsing test MSE at $P = N$ from $\sim 2 \times 10^4$ to $0.31$. The smallest singular value of the random feature matrix drops to $6 \times 10^{-7}$ exactly at $P = N$ and recovers in the overparameterized regime, confirming the geometric source of the spike. Random-feature ridge also approaches exact RBF kernel ridge as $P \to \infty$, recovering the Rahimi and Recht (2007) kernel-approximation result on the same pipeline.
+The classical bias-variance tradeoff predicts that test error rises monotonically once a model has more parameters than training points. The double-descent phenomenon (Belkin et al., 2019) contradicts that prediction, showing a spike near the interpolation threshold $P = N$ followed by a second descent. This project reproduces the spike on California Housing using random Fourier feature ridge regression and tests the three-factor explanation of Schaeffer et al.\ (2023) by ablating each factor in turn. Ridge regularization, leading-singular-direction projection, and noiseless targets each eliminate the spike on their own, with ridge $\lambda = 0.1$ collapsing test MSE at the threshold from $\sim 2 \times 10^4$ to $0.31$. The smallest singular value of the random feature matrix drops to $6 \times 10^{-7}$ at $P = N$ and recovers in the overparameterized regime, supporting the geometric explanation of the spike. Random-feature ridge also approaches exact RBF kernel ridge as $P \to \infty$, recovering the Rahimi and Recht (2007) kernel-approximation result on the same pipeline.
 \end{abstract}
 
 \section{Introduction}
@@ -87,7 +87,7 @@ We report mean squared error (MSE) on the test holdout, averaged over three rand
 
 \section{Methods}
 
-\paragraph{Class-method benchmarks.}
+\paragraph{Standard regression baselines.}
 We compare against linear regression, ridge regression on the raw $8$-dimensional features, and a mean predictor that always returns $\bar{y}_{\text{train}}$.
 
 \paragraph{Exact RBF kernel ridge regression.}
@@ -98,7 +98,7 @@ At each $P$, we run four ablation conditions in addition to the baseline:
 \begin{itemize}
   \item \textbf{Factor (a), ridge regularization.} Sweep $\lambda \in \{10^{-4}, 10^{-3}, 10^{-2}, 10^{-1}\}$ in addition to the default. Larger $\lambda$ should suppress the spike by stabilizing small singular values.
   \item \textbf{Factor (b), leading-mode projection.} Compute the SVD of the training feature matrix $\Phi_{\text{train}} = U S V^\top$, retain the top $k$ right-singular vectors $V_k$, and predict using $\Phi_{\text{train}} V_k V_k^\top$ and $\Phi_{\text{test}} V_k V_k^\top$. This removes the trailing singular directions that are responsible for amplifying small singular values.
-  \item \textbf{Factor (c), noiseless target.} Replace $y$ with $y_{\text{clean}} = w_{\text{lin}}^\top x$, the best linear fit on raw features. The new target sits exactly in the column space of any random feature map, so there are no residuals to amplify.
+  \item \textbf{Factor (c), noiseless target.} Replace $y$ with $y_{\text{clean}} = w_{\text{lin}}^\top x$, the best linear fit on raw features. This removes the residual / model-misspecification component of the target that can be amplified by small singular values near the interpolation threshold.
 \end{itemize}
 
 \paragraph{Spectral analysis.}
@@ -187,7 +187,7 @@ Figure~\ref{fig:kpca} shows the singular spectrum of the random feature matrix a
 Returning to the central question: where does the classical bias-variance curve break, and what fixes it? It breaks because the ridgeless interpolator at $P = N$ is built on top of a near-singular feature matrix. The smallest singular value of $\Phi_{\text{train}}$ drops to machine precision exactly at $P = N$, the test MSE blows up to $\sim 2 \times 10^4$, and any of three independent fixes (ridge regularization, projection onto the leading singular directions, or a noiseless target) brings it back to near $0.3$. The geometry and the Schaeffer et al.\ account match.
 
 \paragraph{All three factors are real, and any one is sufficient to flatten the spike.}
-The Schaeffer et al.\ (2023) account predicts that ridge regularization, leading-mode projection, and noiseless targets are each sufficient to eliminate the test-error spike at $P = N$. Our results confirm this on California Housing. The most dramatic factor is ridge: lifting $\lambda$ to $10^{-1}$ at the threshold reduces test MSE by four orders of magnitude, from a numerical-instability blowup to $0.31$. The most surprising factor in absolute terms is leading-mode projection: at $k = N/4$, test MSE at the threshold is $0.35$, matching the best ridge result without using $\lambda$ at all.
+The Schaeffer et al.\ (2023) account predicts that ridge regularization, leading-mode projection, and noiseless targets are each sufficient to eliminate the test-error spike near $P = N$. Our results confirm this on California Housing. The most dramatic factor is ridge: lifting $\lambda$ to $10^{-1}$ at the threshold reduces test MSE by four orders of magnitude, from a numerical-instability blowup to $0.31$. The most surprising factor in absolute terms is leading-mode projection: at $k = N/4$, test MSE at the threshold is $0.35$, matching the best ridge result without using $\lambda$ at all.
 
 \paragraph{The geometry of the spike: smallest singular value.}
 The smallest singular value of $\Phi_{\text{train}}$ drops to machine precision exactly at $P = N$ (Figure~\ref{fig:smallest}). The location of this dip matches the location of the test-MSE spike to within the resolution of our $P$ grid. This is the structural quantity that ridge stabilizes (factor a), that leading-mode projection sidesteps (factor b), and that has no error to amplify when targets are noiseless (factor c).
